@@ -88,8 +88,8 @@ public class Budget {
         c.goal = goal;
         try(FileWriter fw = new FileWriter(GOALSFILE);
             BufferedWriter bw = new BufferedWriter(fw)){
-            for (int i = 0; i < categories.size(); i++) {
-                bw.write(categories.get(i) + "," + categories.get(i).goal);
+            for (Category category : categories) {
+                bw.write(category + "," + category.goal);
                 bw.newLine();
             }
         } catch (IOException e) {
@@ -109,11 +109,11 @@ public class Budget {
             System.out.println("Empty CategoryList, Fill Categories before adding uploading data.");
             return;
         }
-        String date = "";
-        String retailer = "";
-        String credit = "";
-        String debit = "";
-        String balance = "";
+        String date;
+        String retailer;
+        String credit;
+        String debit;
+        String balance;
         File file = new File(name);
         try {
             Scanner scanner = new Scanner(file);
@@ -139,7 +139,7 @@ public class Budget {
         csvUploade = true;
         double[] sums = new double[categories.size()];
         for (Entry e : entries) {
-            int catNum = 0;
+            int catNum;
             if(!e.exists){
                 catNum = addToCategory(e);
             }

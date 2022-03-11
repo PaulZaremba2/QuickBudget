@@ -5,10 +5,12 @@
  * in each category along with how much is left.
  * The CSV format from my bank I am basing this off is date,retailer,credit,debit,accountTotal.
  * Ex. 12/16/2021,Amazon.ca*2U8Z01XE0,17.01,,10421.71
+ * It can take in two command line arguments the first one can be month the second is the csv file.  The program will do a quick print out
+ * of your actual budget assuming all retailers are known.  Otherwise run the program with no commandline arguments to add categories to
+ * the unknown retailers.  The first argument of the month is for future application of recording budgets month by month.
  * @author Paul Zaremba
  * @version 1.0
  */
-
 
 import java.util.Scanner;
 
@@ -20,8 +22,13 @@ public class QuickBudget {
     public static void main(String[] args) {
         Budget budget = new Budget();
         Scanner userInput = new Scanner(System.in);
-        printMenu();
         String input = "";
+        if (args.length > 1) {
+            String month = args[0];
+            budget.uploadCSV(args[1]);
+            System.exit(0);
+        }
+        printMenu();
         while(true){
             input = userInput.next();
             switch(input){
