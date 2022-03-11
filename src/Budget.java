@@ -1,3 +1,8 @@
+/**
+ * Primary class that handles the budget and interacts with the user interface.
+ *
+ */
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -9,7 +14,10 @@ public class Budget {
     Scanner scanner;
     public ArrayList<Entry> entries;
     public boolean csvUploade = false;
-
+    /**
+     * Reads the goals.csv file to get budget information
+     * Reads the retailerLink.csv file to get the links between retailers and categories
+     */
     Budget(){
         entries = new ArrayList<>();
         categories = new ArrayList<>();
@@ -17,6 +25,9 @@ public class Budget {
         populateRail();
     }
 
+    /**
+     * Reads the retail file and populates the Category Objects with known retailers.
+     */
     private void populateRail() {
         try {
             scanner = new Scanner(RETAILFILE);
@@ -36,6 +47,10 @@ public class Budget {
         }
     }
 
+    /**
+     * Reads the goals.csv file and adds on budget goals into each category object
+     */
+
     private void populateGoals() {
         try {
             scanner = new Scanner(GOALSFILE);
@@ -51,15 +66,23 @@ public class Budget {
         categories.add(new Category("Exceptions", 0));
     }
 
+    /**
+     * Prints the budget in the form of Category      Goal
+     */
     public void printBudget() {
         System.out.printf("%-24s %-24s\n","Category","Goal");
         for (int i = 0; i < categories.size(); i++) {
             String category ="(" + i + ") " + categories.get(i).toString();
             double goal = categories.get(i).goal;
-            System.out.printf("%-24s %-24s\n",category,goal);
+            System.out.printf("%-24s %-24.2f\n",category,goal);
         }
     }
 
+    /**
+     * This edits the categories budget goal.  It then writes to the goals.csv file the changes.
+     * @param index index of category to be changed.
+     * @param goal amount each month budget should intake
+     */
     public void editCategoryItem(int index, double goal) {
         Category c = categories.get(index);
         c.goal = goal;
@@ -74,6 +97,13 @@ public class Budget {
         }
     }
 
+    /**
+     * Uploads a csv file in the form:
+     * date,retailer name,credit,debit,account balance
+     * It first checks if the retailer is already known.  If it is not then it allows user to select which category it belongs.
+     * Once all the retailers are known it adds up each category and prints the actual budget method.
+     * @param name of file to be uploaded.  Must be csv in form date,retailer name,credit,debit,balance
+     */
     public void uploadCSV(String name){
         if (categories.isEmpty()) {
             System.out.println("Empty CategoryList, Fill Categories before adding uploading data.");
@@ -128,10 +158,12 @@ public class Budget {
             categories.get(i).actual += sums[i];
         }
         printActualBudget();
-
-
     }
 
+    /**
+     * Prints the acutally used budget in the form:
+     * Category      Goal     Actual
+     */
     public void printActualBudget() {
         System.out.printf("%-24s %-24s %-24s\n","Category","Goal","actual");
         for (int i = 0; i < categories.size(); i++) {
@@ -142,6 +174,13 @@ public class Budget {
         }
     }
 
+    /**
+     * Called in upload method if the retailer does not have an associated category.
+     * Amazon appears to change the numbers asspciated with them so I put in an amazon shortcut.
+     * This would need to be changed as it automatically adds it to category (1)
+     * @param e Entry that has the information gathered from the  csv file.
+     * @return returns an integer of the category the retailer was assigned to.
+     */
     private int addToCategory(Entry e) {
         System.out.println(e.name + " not found in category type number to add to a category");
         String testZon = e.name.toLowerCase();
@@ -162,6 +201,10 @@ public class Budget {
         return choice;
     }
 
+    /**
+     * Writes the retailers and their respective categories to file.
+     * retailer,category
+     */
     private void writeRetailFile(){
         try(FileWriter fw = new FileWriter(RETAILFILE);
             BufferedWriter bw = new BufferedWriter(fw)){
@@ -176,13 +219,33 @@ public class Budget {
         }
     }
 
+    /**
+     * Prints out how much is left in each category.
+     */
     public void left(){
         if (!csvUploade) {
             System.out.println("Please upload CSV file first");
         }
         else{
-
+            for (Category c : categories) {
+                System.out.printf("%-24s %-24.2f\n", c.name,c.goal - c.actual);
+            }
         }
+    }
+
+    /**
+     * Edits the budget for how much was left or gone over from the actual.
+     * Example.  If budget was $500.  You spend $450.  The budget will be rewritten to $550 for the following month.
+     */
+    public void rollOver() {
+        for (Category c : categories) {
+            c.goal = c.goal + (c.goal - c.actual);
+        }
+        for (int i = 0; i < categories.size(); i++) {
+            editCategoryItem(i,categories.get(i).goal);
+        }
+
+
     }
 
 }
