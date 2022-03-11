@@ -23,6 +23,7 @@ public class QuickBudget {
         Budget budget = new Budget();
         Scanner userInput = new Scanner(System.in);
         String input = "";
+        //TODO Make method to print out this command line argument better and more streamlined.
         if (args.length > 1) {
             String month = args[0];
             budget.uploadCSV(args[1]);
