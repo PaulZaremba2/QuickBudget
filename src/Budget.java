@@ -85,7 +85,7 @@ public class Budget {
      * @param goal amount each month budget should intake
      */
     public void editCategoryItem(int index, double goal, boolean rollover) {
-        File file = null;
+        File file;
         if(rollover){
             file = ROLLOVERGOALS;
         }
@@ -136,11 +136,6 @@ public class Budget {
                 debit = split[3];
                 balance = split[4];
                 entries.add(new Entry(date, retailer, credit, debit, balance,categories));
-                date = "";
-                retailer = "";
-                credit = "";
-                debit = "";
-                balance = "";
             }
             scanner.close();
         } catch (FileNotFoundException e) {
@@ -171,7 +166,7 @@ public class Budget {
     }
 
     /**
-     * Prints the acutally used budget in the form:
+     * Prints the actually used budget in the form:
      * Category      Goal     Actual
      */
     public void printActualBudget() {
@@ -186,7 +181,7 @@ public class Budget {
 
     /**
      * Called in upload method if the retailer does not have an associated category.
-     * Amazon appears to change the numbers asspciated with them so I put in an amazon shortcut.
+     * Amazon appears to change the numbers associated with them, so I put in an amazon shortcut.
      * This would need to be changed as it automatically adds it to category (1)
      * @param e Entry that has the information gathered from the  csv file.
      * @return returns an integer of the category the retailer was assigned to.
