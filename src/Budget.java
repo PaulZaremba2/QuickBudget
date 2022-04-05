@@ -10,10 +10,11 @@ import java.util.Scanner;
 public class Budget {
     private final File GOALSFILE = new File("goals.csv");
     private final File RETAILFILE = new File("retailerLink.csv");
+    private final File ROLLOVERGOALS = new File("rollovergoals.csv");
     public ArrayList<Category> categories;
     Scanner scanner;
     public ArrayList<Entry> entries;
-    public boolean csvUploade = false;
+    public boolean csvUploaded = false;
     /**
      * Reads the goals.csv file to get budget information
      * Reads the retailerLink.csv file to get the links between retailers and categories
@@ -83,14 +84,23 @@ public class Budget {
      * @param index index of category to be changed.
      * @param goal amount each month budget should intake
      */
-    public void editCategoryItem(int index, double goal) {
+    public void editCategoryItem(int index, double goal, boolean rollover) {
+        File file = null;
+        if(rollover){
+            file = ROLLOVERGOALS;
+        }
+        else{
+            file = GOALSFILE;
+        }
         Category c = categories.get(index);
         c.goal = goal;
-        try(FileWriter fw = new FileWriter(GOALSFILE);
+        try(FileWriter fw = new FileWriter(file);
             BufferedWriter bw = new BufferedWriter(fw)){
             for (Category category : categories) {
-                bw.write(category + "," + category.goal);
-                bw.newLine();
+                if(!category.name.equals("Exceptions")){
+                    bw.write(category + "," + category.goal);
+                    bw.newLine();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -136,7 +146,7 @@ public class Budget {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        csvUploade = true;
+        csvUploaded = true;
         double[] sums = new double[categories.size()];
         for (Entry e : entries) {
             int catNum;
@@ -182,14 +192,20 @@ public class Budget {
      * @return returns an integer of the category the retailer was assigned to.
      */
     private int addToCategory(Entry e) {
-        System.out.println(e.name + " not found in category type number to add to a category");
+        for (Category c : categories) {
+            for (String name : c.retailers) {
+                if (name.equals(e.name)) {
+                    return categories.indexOf(c);
+                }
+            }
+        }
         String testZon = e.name.toLowerCase();
         if(testZon.contains("amazon") || testZon.contains("amzn")){
             categories.get(1).retailers.add(e.name);
-            System.out.println("AutoWriting Amazon");
             writeRetailFile();
             return 1;
         }
+        System.out.println(e.name + " not found in category type number to add to a category");
         for (int i = 0; i < categories.size(); i++) {
             System.out.println("(" + i + ") " + categories.get(i).name);
         }
@@ -223,7 +239,7 @@ public class Budget {
      * Prints out how much is left in each category.
      */
     public void left(){
-        if (!csvUploade) {
+        if (!csvUploaded) {
             System.out.println("Please upload CSV file first");
         }
         else{
@@ -242,10 +258,30 @@ public class Budget {
             c.goal = c.goal + (c.goal - c.actual);
         }
         for (int i = 0; i < categories.size(); i++) {
-            editCategoryItem(i,categories.get(i).goal);
+            editCategoryItem(i,categories.get(i).goal,true);
         }
 
 
     }
 
+
+    public void saveMonth(String month) {
+        File file = new File(month);
+        double totalGoal = 0;
+        double totalActual = 0;
+        try(FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw)){
+            for (Category c : categories) {
+                double left = c.goal - c.actual;
+                totalGoal += c.goal;
+                totalActual += c.actual;
+                bw.write(c.name + "," + left);
+                bw.newLine();
+            }
+            bw.write("Total Goal " + totalGoal + "\tTotal Actual: " + totalActual + "\tOver/Under: " + (totalGoal - totalActual));
+            bw.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

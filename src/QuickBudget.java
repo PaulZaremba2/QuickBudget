@@ -17,7 +17,7 @@ import java.util.Scanner;
 public class QuickBudget {
 
     public static void printMenu() {
-        System.out.println("Credit Card Budget options:\n(pb) print budget\n(eb [item] [value]) edit budget\n(ucsv [filename.csv]) upload csvfile\n(ab) acutal budget\n(left) amount remaining\n(m) print menu\n(ro) roll over\n(x) exits");
+        System.out.println("Credit Card Budget options:\n(pb) print budget\n(eb [item] [value]) edit budget\n(ucsv [filename.csv]) upload csvfile\n(ab) acutal budget\n(left) amount remaining\n(m) print menu\n(ro) roll over\n(save [month]) Save Budget\n(x) exits");
     }
     public static void main(String[] args) {
         Budget budget = new Budget();
@@ -27,6 +27,7 @@ public class QuickBudget {
         if (args.length > 1) {
             String month = args[0];
             budget.uploadCSV(args[1]);
+            budget.saveMonth(month);
             System.exit(0);
         }
         printMenu();
@@ -43,7 +44,7 @@ public class QuickBudget {
                     int item = userInput.nextInt();
                     int value = userInput.nextInt();
                     userInput.nextLine();
-                    budget.editCategoryItem(item,value);
+                    budget.editCategoryItem(item,value, false);
                     budget.printBudget();
                     break;
                 case "ucsv":
@@ -60,6 +61,10 @@ public class QuickBudget {
                     break;
                 case "ro":
                     budget.rollOver();
+                    break;
+                case "save":
+                    String month = userInput.next();
+                    budget.saveMonth(month);
                     break;
                 default:
                     System.out.println(input);
