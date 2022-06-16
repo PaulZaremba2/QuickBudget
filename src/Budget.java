@@ -170,12 +170,24 @@ public class Budget {
      * Category      Goal     Actual
      */
     public void printActualBudget() {
-        System.out.printf("%-24s %-24s %-24s\n","Category","Goal","actual");
-        for (int i = 0; i < categories.size(); i++) {
-            String category ="(" + i + ") " + categories.get(i).toString();
-            double goal = categories.get(i).goal;
-            double actual = categories.get(i).actual;
-            System.out.printf("%-24s %-24.2f %-24.2f\n",category,goal,actual);
+        try {
+            File currentBudget = new File("currentBudget.csv");
+            FileWriter fw = new FileWriter(currentBudget);
+            BufferedWriter bw = new BufferedWriter(fw);
+            System.out.printf("%-24s %-24s %-24s\n", "Category", "Goal", "actual");
+            for (int i = 0; i < categories.size(); i++) {
+                String category = "(" + i + ") " + categories.get(i).toString();
+                double goal = categories.get(i).goal;
+                double actual = categories.get(i).actual;
+                double left = goal - actual;
+                bw.write(category + "," + goal + "," + left);
+                bw.newLine();
+                System.out.printf("%-24s %-24.2f %-24.2f\n", category, goal, actual);
+            }
+            bw.close();
+            fw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
